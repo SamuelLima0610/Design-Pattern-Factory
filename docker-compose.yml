@@ -1,0 +1,49 @@
+services:
+  # ============================================
+  # Infrastructure Services
+  # ============================================
+  
+  postgres:
+    image: postgres:15
+    container_name: factory-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: factory
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tradecards-network
+
+  # ============================================
+  # Microservices
+  # ============================================
+  # 
+  # order-service: Manages orders and publishes order.created events
+  # Port: 8081
+  # Build: cd services/order-service && mvn clean package
+  # Run: java -jar services/order-service/target/order-service-0.0.1-SNAPSHOT.jar
+  #
+  # To add new services, follow the pattern:
+  # service-name:
+  #   build:
+  #     context: ./services/service-name
+  #     dockerfile: Dockerfile
+  #   container_name: service-name
+  #   ports:
+  #     - "PORT:PORT"
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/factory
+  #   networks:
+  #     - tradecards-network
+
+networks:
+  tradecards-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
