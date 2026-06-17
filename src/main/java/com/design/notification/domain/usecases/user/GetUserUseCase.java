@@ -1,4 +1,4 @@
-package com.design.notification.domain.usecases;
+package com.design.notification.domain.usecases.user;
 
 import java.util.Optional;
 

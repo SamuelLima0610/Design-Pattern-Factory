@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
-import com.design.notification.application.dtos.UserRequest;
-import com.design.notification.application.dtos.UserResponse;
+import com.design.notification.application.dtos.user.UserRequest;
+import com.design.notification.application.dtos.user.UserResponse;
 import com.design.notification.domain.entities.User;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)

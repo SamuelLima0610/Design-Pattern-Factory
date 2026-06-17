@@ -1,4 +1,4 @@
-package com.design.notification.application.dtos;
+package com.design.notification.application.dtos.user;
 
 import java.time.LocalDateTime;
 

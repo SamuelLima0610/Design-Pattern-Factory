@@ -5,13 +5,14 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.design.notification.application.dtos.UserRequest;
-import com.design.notification.application.dtos.UserResponse;
+import com.design.notification.application.dtos.user.UserRequest;
+import com.design.notification.application.dtos.user.UserResponse;
 import com.design.notification.application.mappers.UserDtoMapper;
-import com.design.notification.domain.usecases.CreateUserUseCase;
-import com.design.notification.domain.usecases.DeleteUserUseCase;
-import com.design.notification.domain.usecases.GetUserUseCase;
-import com.design.notification.domain.usecases.ListAllUsersUseCase;
+import com.design.notification.domain.usecases.user.CreateUserUseCase;
+import com.design.notification.domain.usecases.user.DeleteUserUseCase;
+import com.design.notification.domain.usecases.user.GetUserUseCase;
+import com.design.notification.domain.usecases.user.ListAllUsersUseCase;
+import com.design.notification.domain.usecases.user.UpdateUserUseCase;
 
 @Service
 public class UserService {
@@ -20,13 +21,15 @@ public class UserService {
     private final GetUserUseCase getUserCase;
     private final DeleteUserUseCase deleteUserCase;
     private final ListAllUsersUseCase listUsersCase;
+    private final UpdateUserUseCase updateUserCase;
     private final UserDtoMapper userMapper;
 
-    public UserService(CreateUserUseCase createUserCase, GetUserUseCase getUserCase, DeleteUserUseCase deleteUserCase, ListAllUsersUseCase listUsersCase, UserDtoMapper userMapper) {
+    public UserService(CreateUserUseCase createUserCase, GetUserUseCase getUserCase, DeleteUserUseCase deleteUserCase, ListAllUsersUseCase listUsersCase, UpdateUserUseCase updateUserCase, UserDtoMapper userMapper) {
         this.createUserCase = createUserCase;
         this.getUserCase = getUserCase;
         this.deleteUserCase = deleteUserCase;
         this.listUsersCase = listUsersCase;
+        this.updateUserCase = updateUserCase;
         this.userMapper = userMapper;
     }
 
@@ -38,6 +41,11 @@ public class UserService {
 
     public Optional<UserResponse> getUserById(Long id) {
         return getUserCase.execute(id).map(userMapper::toResponse);
+    }
+
+    public void updateUser(Long id, UserRequest request) {
+        var updatedUser = userMapper.toEntity(request);
+        updateUserCase.execute(id, updatedUser);
     }
 
     public void deleteUser(Long id) {

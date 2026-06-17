@@ -1,4 +1,4 @@
-package com.design.notification.application.dtos;
+package com.design.notification.application.dtos.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

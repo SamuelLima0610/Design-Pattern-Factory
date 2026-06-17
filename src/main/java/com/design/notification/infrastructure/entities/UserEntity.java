@@ -1,6 +1,8 @@
 package com.design.notification.infrastructure.entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,6 +28,9 @@ public class UserEntity {
 
     @Column(nullable = false, length = 100, unique = true)
     private String email;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NotificationEntity> notifications = new ArrayList<>();
 
     @Column(name = "createdat", nullable = false, updatable = false)
     private LocalDateTime createdAt;

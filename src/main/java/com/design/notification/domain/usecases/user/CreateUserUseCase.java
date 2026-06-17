@@ -1,6 +1,4 @@
-package com.design.notification.domain.usecases;
-
-import java.util.List;
+package com.design.notification.domain.usecases.user;
 
 import org.springframework.stereotype.Component;
 
@@ -8,15 +6,15 @@ import com.design.notification.domain.entities.User;
 import com.design.notification.domain.repositories.UserRepository;
 
 @Component
-public class ListAllUsersUseCase {
+public class CreateUserUseCase {
     
     private final UserRepository userRepository;
 
-    public ListAllUsersUseCase(UserRepository userRepository) {
+    public CreateUserUseCase(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public List<User> execute() {
-        return userRepository.findAll();
+    public User execute(User user){
+        return userRepository.save(user);
     }
 }

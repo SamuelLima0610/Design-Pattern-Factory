@@ -7,12 +7,13 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.design.notification.application.dtos.UserRequest;
-import com.design.notification.application.dtos.UserResponse;
+import com.design.notification.application.dtos.user.UserRequest;
+import com.design.notification.application.dtos.user.UserResponse;
 import com.design.notification.application.services.UserService;
 
 
@@ -44,6 +45,12 @@ public class UserController {
         List<UserResponse> users = userService.listAllUsers();
         return ResponseEntity.ok(users);   
     }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<Void> updateUser(@PathVariable Long userId, @RequestBody UserRequest userRequest) {
+        userService.updateUser(userId, userRequest);
+        return ResponseEntity.noContent().build();
+    }   
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {

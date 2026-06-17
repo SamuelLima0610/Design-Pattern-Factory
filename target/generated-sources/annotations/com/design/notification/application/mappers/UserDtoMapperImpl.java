@@ -1,14 +1,14 @@
 package com.design.notification.application.mappers;
 
-import com.design.notification.application.dtos.UserRequest;
-import com.design.notification.application.dtos.UserResponse;
+import com.design.notification.application.dtos.user.UserRequest;
+import com.design.notification.application.dtos.user.UserResponse;
 import com.design.notification.domain.entities.User;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-16T11:42:09-0300",
+    date = "2026-06-17T13:57:28-0300",
     comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.11 (Ubuntu)"
 )
 @Component
