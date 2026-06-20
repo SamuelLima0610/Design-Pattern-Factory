@@ -17,5 +17,6 @@ public interface NotificationDtoMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "user", ignore = true)
     Notification toEntity(NotificationRequest notificationRequest);
 }

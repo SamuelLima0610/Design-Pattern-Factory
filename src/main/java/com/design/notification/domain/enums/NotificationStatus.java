@@ -1,4 +1,4 @@
-package com.design.notification.infrastructure.enums;
+package com.design.notification.domain.enums;
 
 public enum NotificationStatus {
     PENDING,

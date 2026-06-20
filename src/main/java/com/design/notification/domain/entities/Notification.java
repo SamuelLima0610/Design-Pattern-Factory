@@ -3,8 +3,8 @@ package com.design.notification.domain.entities;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import com.design.notification.infrastructure.enums.NotificationChannel;
-import com.design.notification.infrastructure.enums.NotificationStatus;
+import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationStatus;
 
 
 public class Notification {

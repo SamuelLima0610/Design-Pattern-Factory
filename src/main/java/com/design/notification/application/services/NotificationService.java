@@ -12,6 +12,8 @@ import com.design.notification.domain.usecases.notification.CreateNotificationUs
 import com.design.notification.domain.usecases.notification.DeleteNotificationUseCase;
 import com.design.notification.domain.usecases.notification.GetNotificationUseCase;
 import com.design.notification.domain.usecases.notification.ListAllNotificationsUseCase;
+import com.design.notification.domain.usecases.notification.SendNotificationUseCase;
+import com.design.notification.domain.usecases.user.GetUserUseCase;
 
 @Service
 public class NotificationService {
@@ -21,19 +23,34 @@ public class NotificationService {
     private final DeleteNotificationUseCase deleteNotificationCase;
     private final GetNotificationUseCase getNotificationCase;
     private final ListAllNotificationsUseCase listNotificationsCase;
+    private final SendNotificationUseCase sendNotificationCase;
+    private final GetUserUseCase getUserCase;
     private final NotificationDtoMapper notificationMapper;
 
-    public NotificationService(CreateNotificationUseCase createNotificationCase, DeleteNotificationUseCase deleteNotificationCase, GetNotificationUseCase getNotificationCase, ListAllNotificationsUseCase listNotificationsCase, NotificationDtoMapper notificationMapper) {
+    public NotificationService(
+            CreateNotificationUseCase createNotificationCase, 
+            DeleteNotificationUseCase deleteNotificationCase, 
+            GetNotificationUseCase getNotificationCase, 
+            ListAllNotificationsUseCase listNotificationsCase, 
+            SendNotificationUseCase sendNotificationCase,
+            GetUserUseCase getUserCase,
+            NotificationDtoMapper notificationMapper) {
         this.createNotificationCase = createNotificationCase;
         this.deleteNotificationCase = deleteNotificationCase;
         this.getNotificationCase = getNotificationCase;
         this.listNotificationsCase = listNotificationsCase;
+        this.sendNotificationCase = sendNotificationCase;
+        this.getUserCase = getUserCase;
         this.notificationMapper = notificationMapper;
     }
 
     public NotificationResponse createNotification(NotificationRequest request) {
         var notification = notificationMapper.toEntity(request);
+        var user = getUserCase.execute(request.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + request.getUserId()));
+        notification.setUser(user);
         notification = createNotificationCase.execute(notification);
+        sendNotificationCase.execute(notification);
         return notificationMapper.toResponse(notification);
     }
 
@@ -48,6 +65,9 @@ public class NotificationService {
 
     public void updateNotification(Long id, NotificationRequest request) {
         var updatedNotification = notificationMapper.toEntity(request);
+        var user = getUserCase.execute(request.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + request.getUserId()));
+        updatedNotification.setUser(user);
         getNotificationCase.execute(id).ifPresent(notification -> {
             updatedNotification.setId(notification.getId());
             createNotificationCase.execute(updatedNotification);

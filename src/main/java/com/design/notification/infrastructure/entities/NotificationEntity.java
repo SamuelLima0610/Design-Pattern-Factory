@@ -2,8 +2,8 @@ package com.design.notification.infrastructure.entities;
 
 import java.time.LocalDateTime;
 
-import com.design.notification.infrastructure.enums.NotificationChannel;
-import com.design.notification.infrastructure.enums.NotificationStatus;
+import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -2,8 +2,8 @@ package com.design.notification.application.dtos.notification;
 
 import java.time.LocalDateTime;
 
-import com.design.notification.infrastructure.enums.NotificationChannel;
-import com.design.notification.infrastructure.enums.NotificationStatus;
+import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
