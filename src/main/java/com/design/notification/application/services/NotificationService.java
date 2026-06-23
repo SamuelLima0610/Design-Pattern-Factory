@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 import com.design.notification.application.dtos.notification.NotificationRequest;
 import com.design.notification.application.dtos.notification.NotificationResponse;
 import com.design.notification.application.mappers.NotificationDtoMapper;
+import com.design.notification.domain.gateways.NotificationPublisher;
 import com.design.notification.domain.usecases.notification.CreateNotificationUseCase;
 import com.design.notification.domain.usecases.notification.DeleteNotificationUseCase;
 import com.design.notification.domain.usecases.notification.GetNotificationUseCase;
 import com.design.notification.domain.usecases.notification.ListAllNotificationsUseCase;
-import com.design.notification.domain.usecases.notification.SendNotificationUseCase;
 import com.design.notification.domain.usecases.user.GetUserUseCase;
 
 @Service
@@ -23,7 +23,7 @@ public class NotificationService {
     private final DeleteNotificationUseCase deleteNotificationCase;
     private final GetNotificationUseCase getNotificationCase;
     private final ListAllNotificationsUseCase listNotificationsCase;
-    private final SendNotificationUseCase sendNotificationCase;
+    private final NotificationPublisher notificationPublisher;
     private final GetUserUseCase getUserCase;
     private final NotificationDtoMapper notificationMapper;
 
@@ -32,14 +32,14 @@ public class NotificationService {
             DeleteNotificationUseCase deleteNotificationCase, 
             GetNotificationUseCase getNotificationCase, 
             ListAllNotificationsUseCase listNotificationsCase, 
-            SendNotificationUseCase sendNotificationCase,
+            NotificationPublisher notificationPublisher,
             GetUserUseCase getUserCase,
             NotificationDtoMapper notificationMapper) {
         this.createNotificationCase = createNotificationCase;
         this.deleteNotificationCase = deleteNotificationCase;
         this.getNotificationCase = getNotificationCase;
         this.listNotificationsCase = listNotificationsCase;
-        this.sendNotificationCase = sendNotificationCase;
+        this.notificationPublisher = notificationPublisher;
         this.getUserCase = getUserCase;
         this.notificationMapper = notificationMapper;
     }
@@ -50,7 +50,7 @@ public class NotificationService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + request.getUserId()));
         notification.setUser(user);
         notification = createNotificationCase.execute(notification);
-        sendNotificationCase.execute(notification);
+        notificationPublisher.publish(notification);
         return notificationMapper.toResponse(notification);
     }
 
