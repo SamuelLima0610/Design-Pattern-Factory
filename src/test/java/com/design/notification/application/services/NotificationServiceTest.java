@@ -20,11 +20,11 @@ import com.design.notification.domain.entities.Notification;
 import com.design.notification.domain.entities.User;
 import com.design.notification.domain.enums.NotificationChannel;
 import com.design.notification.domain.enums.NotificationStatus;
+import com.design.notification.domain.gateways.NotificationPublisher;
 import com.design.notification.domain.usecases.notification.CreateNotificationUseCase;
 import com.design.notification.domain.usecases.notification.DeleteNotificationUseCase;
 import com.design.notification.domain.usecases.notification.GetNotificationUseCase;
 import com.design.notification.domain.usecases.notification.ListAllNotificationsUseCase;
-import com.design.notification.domain.usecases.notification.SendNotificationUseCase;
 import com.design.notification.domain.usecases.user.GetUserUseCase;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,7 +34,7 @@ class NotificationServiceTest {
     @Mock private DeleteNotificationUseCase deleteNotificationCase;
     @Mock private GetNotificationUseCase getNotificationCase;
     @Mock private ListAllNotificationsUseCase listNotificationsCase;
-    @Mock private SendNotificationUseCase sendNotificationCase;
+    @Mock private NotificationPublisher notificationPublisher;
     @Mock private GetUserUseCase getUserCase;
     @Mock private NotificationDtoMapper notificationMapper;
 
@@ -72,7 +72,7 @@ class NotificationServiceTest {
 
         assertEquals(response, result);
         assertEquals(user, entity.getUser());
-        verify(sendNotificationCase).execute(saved);
+        verify(notificationPublisher).publish(saved);
     }
 
     @Test
