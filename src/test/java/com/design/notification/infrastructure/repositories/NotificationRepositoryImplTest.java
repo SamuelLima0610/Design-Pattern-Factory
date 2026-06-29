@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.design.notification.domain.entities.Notification;
 import com.design.notification.domain.entities.User;
 import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
 import com.design.notification.infrastructure.entities.NotificationEntity;
 import com.design.notification.infrastructure.entities.UserEntity;
@@ -35,13 +36,13 @@ class NotificationRepositoryImplTest {
 
     private Notification buildNotification(Long id) {
         return new Notification(id, "Hello!", NotificationChannel.EMAIL,
-                NotificationStatus.PENDING, buildUser(), LocalDateTime.now(), LocalDateTime.now());
+                NotificationStatus.PENDING, NotificationProvider.GMAIL, buildUser(), LocalDateTime.now(), LocalDateTime.now());
     }
 
     private NotificationEntity buildEntity(Long id) {
         var userEntity = new UserEntity(1L, "John", "+5511999", "j@j.com", null, LocalDateTime.now(), LocalDateTime.now());
         return new NotificationEntity(id, "Hello!", NotificationChannel.EMAIL,
-                NotificationStatus.PENDING, userEntity, LocalDateTime.now(), LocalDateTime.now());
+                NotificationStatus.PENDING, NotificationProvider.GMAIL,  userEntity, LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Test

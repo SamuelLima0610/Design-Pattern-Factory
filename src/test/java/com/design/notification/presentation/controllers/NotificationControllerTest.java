@@ -27,6 +27,7 @@ import com.design.notification.application.dtos.notification.NotificationRequest
 import com.design.notification.application.dtos.notification.NotificationResponse;
 import com.design.notification.application.services.NotificationService;
 import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
 
 @WebMvcTest(NotificationController.class)
@@ -38,12 +39,12 @@ class NotificationControllerTest {
 
     private NotificationResponse buildResponse(Long id) {
         return new NotificationResponse(id, "Hello!", NotificationChannel.EMAIL,
-                NotificationStatus.SENT, 1L, LocalDateTime.now(), LocalDateTime.now());
+                NotificationStatus.SENT, NotificationProvider.GMAIL, 1L, LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Test
     void createNotification_shouldReturn200WithResponse() throws Exception {
-        var request = new NotificationRequest("Hello!", NotificationChannel.EMAIL, NotificationStatus.PENDING, 1L);
+        var request = new NotificationRequest("Hello!", NotificationChannel.EMAIL, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L);
         var response = buildResponse(1L);
         when(notificationService.createNotification(any())).thenReturn(response);
 
@@ -105,7 +106,7 @@ class NotificationControllerTest {
 
     @Test
     void updateNotification_shouldReturn204() throws Exception {
-        var request = new NotificationRequest("Updated!", NotificationChannel.SMS, NotificationStatus.PENDING, 1L);
+        var request = new NotificationRequest("Updated!", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L);
         doNothing().when(notificationService).updateNotification(eq(1L), any());
 
         mockMvc.perform(put("/notifications/1")
@@ -116,7 +117,7 @@ class NotificationControllerTest {
 
     @Test
     void createNotification_whenUserNotFound_shouldReturn500() throws Exception {
-        var request = new NotificationRequest("Hello!", NotificationChannel.EMAIL, NotificationStatus.PENDING, 99L);
+        var request = new NotificationRequest("Hello!", NotificationChannel.EMAIL, NotificationStatus.PENDING, NotificationProvider.GMAIL, 99L);
         when(notificationService.createNotification(any()))
                 .thenThrow(new IllegalArgumentException("User not found: 99"));
 

@@ -1,6 +1,7 @@
 package com.design.notification.application.dtos.notification;
 
 import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
 
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ public class NotificationRequest {
     private String message;
     private NotificationChannel channel;
     private NotificationStatus status;
+    private NotificationProvider provider;
     private Long userId;
     
 }

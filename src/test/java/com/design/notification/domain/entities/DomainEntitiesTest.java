@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
 import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
 
 class DomainEntitiesTest {
@@ -100,7 +101,7 @@ class DomainEntitiesTest {
 
     private Notification buildNotification(Long id) {
         return new Notification(id, "Hello!", NotificationChannel.EMAIL,
-                NotificationStatus.PENDING, buildUser(1L),
+                NotificationStatus.PENDING, NotificationProvider.GMAIL, buildUser(1L),
                 LocalDateTime.of(2024, 1, 1, 10, 0),
                 LocalDateTime.of(2024, 1, 2, 10, 0));
     }
@@ -116,11 +117,12 @@ class DomainEntitiesTest {
     void notification_allArgsConstructor_shouldSetAllFields() {
         var now = LocalDateTime.now();
         var user = buildUser(1L);
-        var n = new Notification(1L, "Hi", NotificationChannel.SMS, NotificationStatus.SENT, user, now, now);
+        var n = new Notification(1L, "Hi", NotificationChannel.SMS, NotificationStatus.SENT, NotificationProvider.GMAIL, user, now, now);
         assertEquals(1L, n.getId());
         assertEquals("Hi", n.getMessage());
         assertEquals(NotificationChannel.SMS, n.getChannel());
         assertEquals(NotificationStatus.SENT, n.getStatus());
+        assertEquals(NotificationProvider.GMAIL, n.getProvider());
         assertEquals(user, n.getUser());
         assertEquals(now, n.getCreatedAt());
         assertEquals(now, n.getUpdatedAt());

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import com.design.notification.domain.entities.Notification;
 import com.design.notification.domain.entities.User;
 import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
 import com.design.notification.infrastructure.entities.NotificationEntity;
 import com.design.notification.infrastructure.entities.UserEntity;
@@ -74,7 +75,7 @@ class EntityMappersTest {
     void notificationMapper_toDomain_shouldMapAllFieldsIncludingUser() {
         var userEntity = buildUserEntity(1L);
         var entity = new NotificationEntity(1L, "Hello!", NotificationChannel.EMAIL,
-                NotificationStatus.SENT, userEntity,
+                NotificationStatus.SENT, NotificationProvider.GMAIL, userEntity,
                 LocalDateTime.of(2024, 1, 1, 10, 0),
                 LocalDateTime.of(2024, 1, 2, 10, 0));
 
@@ -84,6 +85,7 @@ class EntityMappersTest {
         assertEquals("Hello!", domain.getMessage());
         assertEquals(NotificationChannel.EMAIL, domain.getChannel());
         assertEquals(NotificationStatus.SENT, domain.getStatus());
+        assertEquals(NotificationProvider.GMAIL, domain.getProvider());
         assertNotNull(domain.getUser());
         assertEquals(1L, domain.getUser().getId());
         assertEquals(entity.getCreatedAt(), domain.getCreatedAt());
@@ -92,7 +94,7 @@ class EntityMappersTest {
     @Test
     void notificationMapper_toDomain_nullUser_shouldReturnDomainWithNullUser() {
         var entity = new NotificationEntity(1L, "Hi", NotificationChannel.SMS,
-                NotificationStatus.PENDING, null,
+                NotificationStatus.PENDING, NotificationProvider.GMAIL, null,
                 LocalDateTime.now(), LocalDateTime.now());
 
         Notification domain = notificationMapper.toDomain(entity);
@@ -110,7 +112,7 @@ class EntityMappersTest {
     void notificationMapper_toEntity_shouldMapAllFieldsIncludingUser() {
         var user = buildUser(1L);
         var domain = new Notification(1L, "Hello!", NotificationChannel.WHATSAPP,
-                NotificationStatus.PENDING, user,
+                NotificationStatus.PENDING, NotificationProvider.GMAIL, user,
                 LocalDateTime.of(2024, 1, 1, 10, 0),
                 LocalDateTime.of(2024, 1, 2, 10, 0));
 
@@ -120,6 +122,7 @@ class EntityMappersTest {
         assertEquals("Hello!", entity.getMessage());
         assertEquals(NotificationChannel.WHATSAPP, entity.getChannel());
         assertEquals(NotificationStatus.PENDING, entity.getStatus());
+        assertEquals(NotificationProvider.GMAIL, entity.getProvider());
         assertNotNull(entity.getUser());
         assertEquals(1L, entity.getUser().getId());
     }
@@ -127,7 +130,7 @@ class EntityMappersTest {
     @Test
     void notificationMapper_toEntity_nullUser_shouldReturnEntityWithNullUser() {
         var domain = new Notification(1L, "Hi", NotificationChannel.PUSH,
-                NotificationStatus.SENT, null,
+                NotificationStatus.SENT, NotificationProvider.GMAIL, null,
                 LocalDateTime.now(), LocalDateTime.now());
 
         NotificationEntity entity = notificationMapper.toEntity(domain);

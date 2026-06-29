@@ -13,6 +13,7 @@ import com.design.notification.application.dtos.user.UserResponse;
 import com.design.notification.domain.entities.Notification;
 import com.design.notification.domain.entities.User;
 import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
 
 class DtoMappersTest {
@@ -70,7 +71,7 @@ class DtoMappersTest {
     void notificationMapper_toResponse_shouldMapAllFields() {
         var user = buildUser(1L);
         var notification = new Notification(1L, "Hello!", NotificationChannel.EMAIL,
-                NotificationStatus.SENT, user,
+                NotificationStatus.SENT, NotificationProvider.GMAIL, user,
                 LocalDateTime.of(2024, 1, 1, 10, 0),
                 LocalDateTime.of(2024, 1, 2, 10, 0));
 
@@ -91,14 +92,15 @@ class DtoMappersTest {
 
     @Test
     void notificationMapper_toEntity_shouldMapMessageChannelStatus() {
-        var request = new NotificationRequest("Hello!", NotificationChannel.SMS,
-                NotificationStatus.PENDING, 1L);
+        var request = new NotificationRequest(
+                "Hello!", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L);
 
         Notification notification = notificationMapper.toEntity(request);
 
         assertEquals("Hello!", notification.getMessage());
         assertEquals(NotificationChannel.SMS, notification.getChannel());
         assertEquals(NotificationStatus.PENDING, notification.getStatus());
+        assertEquals(NotificationProvider.GMAIL, notification.getProvider());
         assertNull(notification.getId());
         assertNull(notification.getUser());
         assertNull(notification.getCreatedAt());

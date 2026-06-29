@@ -11,7 +11,8 @@ import com.design.notification.domain.entities.Notification;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface NotificationDtoMapper {
-    
+
+    @Mapping(target = "userId", source = "user.id")
     NotificationResponse toResponse(Notification notification);
 
     @Mapping(target = "id", ignore = true)

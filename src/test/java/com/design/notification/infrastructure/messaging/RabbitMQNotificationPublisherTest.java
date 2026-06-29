@@ -14,6 +14,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import com.design.notification.domain.entities.Notification;
 import com.design.notification.domain.entities.User;
 import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
 import com.design.notification.infrastructure.config.RabbitMQConfig;
 
@@ -28,7 +29,7 @@ class RabbitMQNotificationPublisherTest {
         var user = new User(1L, "John", "+5511999999999", "john@example.com",
                 LocalDateTime.now(), LocalDateTime.now());
         return new Notification(id, "Hello!", NotificationChannel.EMAIL,
-                NotificationStatus.PENDING, user, LocalDateTime.now(), LocalDateTime.now());
+                NotificationStatus.PENDING, NotificationProvider.GMAIL, user, LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Test

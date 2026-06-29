@@ -19,6 +19,7 @@ import com.design.notification.application.mappers.NotificationDtoMapper;
 import com.design.notification.domain.entities.Notification;
 import com.design.notification.domain.entities.User;
 import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
 import com.design.notification.domain.gateways.NotificationPublisher;
 import com.design.notification.domain.usecases.notification.CreateNotificationUseCase;
@@ -47,18 +48,18 @@ class NotificationServiceTest {
 
     private Notification buildNotification(Long id, User user) {
         return new Notification(id, "Hello!", NotificationChannel.EMAIL,
-                NotificationStatus.PENDING, user, LocalDateTime.now(), LocalDateTime.now());
+                NotificationStatus.PENDING, NotificationProvider.GMAIL, user, LocalDateTime.now(), LocalDateTime.now());
     }
 
     private NotificationResponse buildResponse(Long id) {
         return new NotificationResponse(id, "Hello!", NotificationChannel.EMAIL,
-                NotificationStatus.SENT, 1L, LocalDateTime.now(), LocalDateTime.now());
+                NotificationStatus.SENT, NotificationProvider.GMAIL, 1L, LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Test
     void createNotification_shouldSetUserCreateSendAndReturnResponse() {
         var user = buildUser(1L);
-        var request = new NotificationRequest("Hello!", NotificationChannel.EMAIL, NotificationStatus.PENDING, 1L);
+        var request = new NotificationRequest("Hello!", NotificationChannel.EMAIL, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L);
         var entity = buildNotification(null, null);
         var saved = buildNotification(1L, user);
         var response = buildResponse(1L);
@@ -77,7 +78,7 @@ class NotificationServiceTest {
 
     @Test
     void createNotification_whenUserNotFound_shouldThrowIllegalArgumentException() {
-        var request = new NotificationRequest("Hello!", NotificationChannel.EMAIL, NotificationStatus.PENDING, 99L);
+        var request = new NotificationRequest("Hello!", NotificationChannel.EMAIL, NotificationStatus.PENDING, NotificationProvider.GMAIL, 99L);
         var entity = buildNotification(null, null);
 
         when(notificationMapper.toEntity(request)).thenReturn(entity);
@@ -122,7 +123,7 @@ class NotificationServiceTest {
     @Test
     void updateNotification_whenUserAndNotificationExist_shouldUpdate() {
         var user = buildUser(1L);
-        var request = new NotificationRequest("Updated!", NotificationChannel.SMS, NotificationStatus.PENDING, 1L);
+        var request = new NotificationRequest("Updated!", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L);
         var updatedEntity = buildNotification(null, null);
         var existing = buildNotification(1L, user);
 
@@ -138,7 +139,7 @@ class NotificationServiceTest {
 
     @Test
     void updateNotification_whenUserNotFound_shouldThrowException() {
-        var request = new NotificationRequest("Updated!", NotificationChannel.SMS, NotificationStatus.PENDING, 99L);
+        var request = new NotificationRequest("Updated!", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 99L);
         when(notificationMapper.toEntity(request)).thenReturn(buildNotification(null, null));
         when(getUserCase.execute(99L)).thenReturn(Optional.empty());
 
@@ -149,7 +150,7 @@ class NotificationServiceTest {
     @Test
     void updateNotification_whenNotificationNotFound_shouldDoNothing() {
         var user = buildUser(1L);
-        var request = new NotificationRequest("Updated!", NotificationChannel.SMS, NotificationStatus.PENDING, 1L);
+        var request = new NotificationRequest("Updated!", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L);
         when(notificationMapper.toEntity(request)).thenReturn(buildNotification(null, null));
         when(getUserCase.execute(1L)).thenReturn(Optional.of(user));
         when(getNotificationCase.execute(1L)).thenReturn(Optional.empty());

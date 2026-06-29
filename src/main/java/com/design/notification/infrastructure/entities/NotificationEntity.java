@@ -3,6 +3,7 @@ package com.design.notification.infrastructure.entities;
 import java.time.LocalDateTime;
 
 import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
 
 import jakarta.persistence.Column;
@@ -40,6 +41,9 @@ public class NotificationEntity {
 
     @Enumerated(EnumType.STRING)
     private NotificationStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private NotificationProvider provider;
 
     @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "user_id")

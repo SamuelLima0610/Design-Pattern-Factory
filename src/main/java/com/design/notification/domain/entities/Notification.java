@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
 
 
@@ -13,6 +14,7 @@ public class Notification {
     private String message;
     private NotificationChannel channel;
     private NotificationStatus status;
+    private NotificationProvider provider;
     private User user;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -20,12 +22,13 @@ public class Notification {
     public Notification() {
     }
 
-    public Notification(Long id, String message, NotificationChannel channel, NotificationStatus status, User user,
+    public Notification(Long id, String message, NotificationChannel channel, NotificationStatus status, NotificationProvider provider, User user,
             LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.message = message;
         this.channel = channel;
         this.status = status;
+        this.provider = provider;
         this.user = user;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -61,6 +64,14 @@ public class Notification {
 
     public void setStatus(NotificationStatus status) {
         this.status = status;
+    }
+
+    public NotificationProvider getProvider() {
+        return provider;
+    }
+
+    public void setProvider(NotificationProvider provider) {
+        this.provider = provider;
     }
 
     public User getUser() {
@@ -107,6 +118,7 @@ public class Notification {
                 ", message='" + message + '\'' +
                 ", channel=" + channel +
                 ", status=" + status +
+                ", provider=" + provider +
                 ", user=" + user +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +

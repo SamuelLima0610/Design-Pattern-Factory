@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import com.design.notification.domain.entities.Notification;
 import com.design.notification.domain.entities.User;
 import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
 
 class NotificationSendersTest {
@@ -20,7 +21,7 @@ class NotificationSendersTest {
 
     private Notification buildNotification(NotificationChannel channel) {
         return new Notification(1L, "Test message", channel,
-                NotificationStatus.PENDING, buildUser(), LocalDateTime.now(), LocalDateTime.now());
+                NotificationStatus.PENDING, NotificationProvider.GMAIL, buildUser(), LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Test

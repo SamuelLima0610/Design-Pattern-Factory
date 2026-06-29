@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.design.notification.domain.entities.Notification;
 import com.design.notification.domain.entities.User;
 import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
 import com.design.notification.domain.gateways.NotificationSender;
 import com.design.notification.domain.gateways.NotificationSenderFactory;
@@ -34,7 +35,7 @@ class NotificationUseCasesTest {
 
     private Notification buildNotification(Long id) {
         return new Notification(id, "Hello!", NotificationChannel.EMAIL,
-                NotificationStatus.PENDING, buildUser(), LocalDateTime.now(), LocalDateTime.now());
+                NotificationStatus.PENDING, NotificationProvider.GMAIL, buildUser(), LocalDateTime.now(), LocalDateTime.now());
     }
 
     // ── CreateNotificationUseCase ────────────────────────────────────────────
@@ -146,7 +147,7 @@ class NotificationUseCasesTest {
         var useCase = new UpdateNotificationUseCase(notificationRepository);
         var existing = buildNotification(1L);
         var updated = new Notification(null, "Updated!", NotificationChannel.SMS,
-                NotificationStatus.PENDING, buildUser(), null, null);
+                NotificationStatus.PENDING, NotificationProvider.GMAIL, buildUser(), null, null);
         when(notificationRepository.findById(1L)).thenReturn(Optional.of(existing));
 
         useCase.execute(1L, updated);
@@ -158,7 +159,8 @@ class NotificationUseCasesTest {
     @Test
     void updateNotification_whenNotFound_shouldNotSave() {
         var useCase = new UpdateNotificationUseCase(notificationRepository);
-        var updated = buildNotification(null);
+        var updated = new Notification(null, "Updated!", NotificationChannel.SMS,
+                NotificationStatus.PENDING, NotificationProvider.GMAIL, buildUser(), null, null);
         when(notificationRepository.findById(99L)).thenReturn(Optional.empty());
 
         useCase.execute(99L, updated);

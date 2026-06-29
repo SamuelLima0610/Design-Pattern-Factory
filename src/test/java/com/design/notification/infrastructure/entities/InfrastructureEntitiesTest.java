@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
 import com.design.notification.domain.enums.NotificationChannel;
+import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
 
 class InfrastructureEntitiesTest {
@@ -94,11 +95,12 @@ class InfrastructureEntitiesTest {
         var now = LocalDateTime.now();
         var userEntity = new UserEntity(1L, "John", "+5511", "j@j.com", null, now, now);
         var entity = new NotificationEntity(1L, "Hi!", NotificationChannel.EMAIL,
-                NotificationStatus.SENT, userEntity, now, now);
+                NotificationStatus.SENT, NotificationProvider.GMAIL, userEntity, now, now);
         assertEquals(1L, entity.getId());
         assertEquals("Hi!", entity.getMessage());
         assertEquals(NotificationChannel.EMAIL, entity.getChannel());
         assertEquals(NotificationStatus.SENT, entity.getStatus());
+        assertEquals(NotificationProvider.GMAIL, entity.getProvider());
         assertEquals(userEntity, entity.getUser());
     }
 
@@ -140,8 +142,8 @@ class InfrastructureEntitiesTest {
     @Test
     void notificationEntity_equalsAndHashCode_sameFields_shouldBeEqual() {
         var time = LocalDateTime.of(2024, 1, 1, 10, 0);
-        var e1 = new NotificationEntity(1L, "A", NotificationChannel.EMAIL, NotificationStatus.SENT, null, time, time);
-        var e2 = new NotificationEntity(1L, "A", NotificationChannel.EMAIL, NotificationStatus.SENT, null, time, time);
+        var e1 = new NotificationEntity(1L, "A", NotificationChannel.EMAIL, NotificationStatus.SENT, NotificationProvider.GMAIL, null, time, time);
+        var e2 = new NotificationEntity(1L, "A", NotificationChannel.EMAIL, NotificationStatus.SENT, NotificationProvider.GMAIL, null, time, time);
         assertEquals(e1, e2);
         assertEquals(e1.hashCode(), e2.hashCode());
     }
@@ -149,7 +151,7 @@ class InfrastructureEntitiesTest {
     @Test
     void notificationEntity_toString_shouldNotThrow() {
         var entity = new NotificationEntity(1L, "Hi", NotificationChannel.EMAIL,
-                NotificationStatus.SENT, null, LocalDateTime.now(), LocalDateTime.now());
+                NotificationStatus.SENT, NotificationProvider.GMAIL, null, LocalDateTime.now(), LocalDateTime.now());
         assertNotNull(entity.toString());
     }
 }
