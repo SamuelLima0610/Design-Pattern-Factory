@@ -17,16 +17,20 @@ import com.design.notification.domain.entities.User;
 import com.design.notification.domain.enums.NotificationChannel;
 import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
+import com.design.notification.domain.gateways.NotificationAbstractFactory;
 import com.design.notification.domain.gateways.NotificationSender;
-import com.design.notification.domain.gateways.NotificationSenderFactory;
+import com.design.notification.domain.gateways.NotificationFactory;
+import com.design.notification.domain.gateways.NotificationValidator;
 import com.design.notification.domain.repositories.NotificationRepository;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationUseCasesTest {
 
     @Mock private NotificationRepository notificationRepository;
-    @Mock private NotificationSenderFactory senderFactory;
+    @Mock private NotificationFactory senderFactory;
+    @Mock private NotificationAbstractFactory abstractFactory;
     @Mock private NotificationSender notificationSender;
+    @Mock private NotificationValidator notificationValidator;
 
     private User buildUser() {
         return new User(1L, "John", "+5511999999999", "john@example.com",
@@ -107,11 +111,14 @@ class NotificationUseCasesTest {
     void sendNotification_onSuccess_shouldSetStatusSentAndSave() {
         var useCase = new SendNotificationUseCase(senderFactory, notificationRepository);
         var notification = buildNotification(1L);
-        when(senderFactory.getSender(NotificationChannel.EMAIL)).thenReturn(notificationSender);
+        when(senderFactory.getFactory(NotificationProvider.GMAIL)).thenReturn(abstractFactory);
+        when(abstractFactory.createValidator()).thenReturn(notificationValidator);
+        when(abstractFactory.createSender()).thenReturn(notificationSender);
 
         useCase.execute(notification);
 
         assertEquals(NotificationStatus.SENT, notification.getStatus());
+        verify(notificationValidator).validate(notification);
         verify(notificationSender).send(notification);
         verify(notificationRepository).save(notification);
     }
@@ -120,7 +127,9 @@ class NotificationUseCasesTest {
     void sendNotification_onSendFailure_shouldSetStatusFailedSaveAndRethrow() {
         var useCase = new SendNotificationUseCase(senderFactory, notificationRepository);
         var notification = buildNotification(1L);
-        when(senderFactory.getSender(NotificationChannel.EMAIL)).thenReturn(notificationSender);
+        when(senderFactory.getFactory(NotificationProvider.GMAIL)).thenReturn(abstractFactory);
+        when(abstractFactory.createValidator()).thenReturn(notificationValidator);
+        when(abstractFactory.createSender()).thenReturn(notificationSender);
         doThrow(new RuntimeException("Send error")).when(notificationSender).send(notification);
 
         assertThrows(RuntimeException.class, () -> useCase.execute(notification));
@@ -132,8 +141,8 @@ class NotificationUseCasesTest {
     void sendNotification_onFactoryFailure_shouldSetStatusFailedSaveAndRethrow() {
         var useCase = new SendNotificationUseCase(senderFactory, notificationRepository);
         var notification = buildNotification(1L);
-        when(senderFactory.getSender(NotificationChannel.EMAIL))
-                .thenThrow(new IllegalArgumentException("Unsupported channel"));
+        when(senderFactory.getFactory(NotificationProvider.GMAIL))
+                .thenThrow(new IllegalArgumentException("Unsupported provider"));
 
         assertThrows(IllegalArgumentException.class, () -> useCase.execute(notification));
         assertEquals(NotificationStatus.FAILED, notification.getStatus());

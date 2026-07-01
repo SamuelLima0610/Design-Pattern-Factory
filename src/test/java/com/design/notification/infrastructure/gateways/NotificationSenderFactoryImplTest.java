@@ -1,7 +1,6 @@
 package com.design.notification.infrastructure.gateways;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,11 +22,11 @@ class NotificationSenderFactoryImplTest {
     @Mock private PushNotificationSender pushSender;
     @Mock private WhatsAppNotificationSender whatsAppSender;
 
-    private NotificationSenderFactoryImpl factory;
+    private NotificationFactoryImpl factory;
 
     @BeforeEach
     void setUp() {
-        factory = new NotificationSenderFactoryImpl(emailSender, smsSender, pushSender, whatsAppSender);
+        factory = new NotificationFactoryImpl(emailSender, smsSender, pushSender, whatsAppSender);
     }
 
     @Test

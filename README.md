@@ -1,32 +1,123 @@
-# Projeto de Factory de Notificações
+# Projeto de Abstract Factory de Notificações
 
 Bem-vindo ao projeto de Sistema de Notificações, desenvolvido utilizando boas práticas de engenharia de software com foco em manutenibilidade e escalabilidade.
 
 ## 🚀 Sobre o Projeto
-Este é um microsserviço de notificações construído com **Java** e **Spring Boot**. O objetivo do projeto é gerenciar usuários e orquestrar o envio de notificações assíncronas através de diversos canais (E-mail, SMS, Push Notifications e WhatsApp). O projeto utiliza **PostgreSQL** como banco de dados e **RabbitMQ** para mensageria assíncrona.
+
+Este é um microsserviço de notificações construído com **Java** e **Spring Boot**. O objetivo do projeto é gerenciar usuários e orquestrar o envio de notificações assíncronas através de múltiplos canais (**E-mail**, **SMS**, **Push** e **WhatsApp**) com suporte a diferentes provedores por canal. O projeto utiliza **PostgreSQL** como banco de dados e **RabbitMQ** para mensageria assíncrona.
 
 ## 🏗️ Arquitetura Escolhida
-O projeto foi estruturado seguindo os princípios da **Clean Architecture** (Arquitetura Limpa), visando desaclopagem e alta coesão das regras de negócio. O código-fonte está dividido nas seguintes camadas principais:
 
-- **Domain** (`/domain`): O coração da aplicação. Contém as entidades de negócio puras (ex: `User`, `Notification`), enumerações, além das interfaces de Casos de Uso, Portas (Gateways) de notificação e Repositórios de dados. Não possui nenhuma dependência externa severa como do Spring.
-- **Application** (`/application`): Contém a implementação da lógica da aplicação e os Casos de Uso através de *Services*. A camada também gerencia os DTOs (Data Transfer Objects) e os Mappers responsáveis por transitar informações em conjunto com a próxima camada.
-- **Infrastructure** (`/infrastructure`): Camada de interface externa. Aqui se concentram as tecnologias usadas: entidades e mapeadores do JPA, configurações e integrações de mensageria, implementações de comunicação com o Banco de Dados (Repositórios), implementações de integração (Gateways de envio de notificação) etc.
-- **Presentation** (`/presentation`): A camada responsável pelas portas de entrada no sistema. Neste projeto se resume fundamentalmente a controladores REST (`NotificationController`, `UserController`) que recebem e respondem as requisições HTTP e tratamento global de exceções.
+O projeto segue os princípios da **Clean Architecture** (Arquitetura Limpa), garantindo desacoplamento e alta coesão das regras de negócio. O código-fonte está dividido nas seguintes camadas:
 
-## 📐 Design Patterns Aplicados
-Um dos principais padrões de projeto adotados nesta implementação é o **Factory Pattern** (Padrão de Fábrica), especificamente focado na estratégia de envio das notificações:
+```
+src/main/java/com/design/notification/
+├── domain/                  ← Regras de negócio puras (sem dependências externas)
+│   ├── entities/            ← User, Notification
+│   ├── enums/               ← NotificationChannel, NotificationProvider, NotificationStatus
+│   ├── gateways/            ← Interfaces: NotificationAbstractFactory, NotificationFactory,
+│   │                           NotificationSender, NotificationFormatter, NotificationValidator,
+│   │                           NotificationPublisher
+│   ├── repositories/        ← Interfaces: NotificationRepository, UserRepository
+│   └── usecases/            ← Interfaces de casos de uso (notification/ e user/)
+│
+├── application/             ← Implementação dos casos de uso e orquestração
+│   ├── services/            ← NotificationService, UserService
+│   ├── dtos/                ← DTOs de entrada/saída (notification/ e user/)
+│   └── mappers/             ← NotificationDtoMapper, UserDtoMapper
+│
+├── infrastructure/          ← Detalhes tecnológicos e integrações externas
+│   ├── entities/            ← NotificationEntity, UserEntity (JPA)
+│   ├── mappers/             ← NotificationEntityMapper, UserEntityMapper
+│   ├── repositories/        ← NotificationRepositoryImpl, UserRepositoryImpl + JPA interfaces
+│   ├── messaging/           ← RabbitMQNotificationPublisher, NotificationConsumer
+│   ├── config/              ← RabbitMQConfig
+│   └── gateways/            ← Implementação do Abstract Factory (ver seção abaixo)
+│       ├── factories/       ← Fábricas concretas por provedor
+│       ├── senders/         ← Implementações de envio por provedor
+│       ├── formatters/      ← Formatadores por canal
+│       └── validators/      ← Validadores por canal
+│
+└── presentation/            ← Portas de entrada HTTP
+    ├── controllers/         ← NotificationController, UserController
+    └── exception/           ← GlobalExceptionHandler
+```
 
-### Factory Method (NotificationSenderFactory)
-O envio prático de uma notificação pode ocorrer por múltiplos canais — seja via SMS, E-mail, mensagens Push em dispositivos móveis, e WhatsApp.
+## 📐 Design Pattern: Abstract Factory
 
-- Ao longo da camada de *Infrastructure*, há implementações dedicadas para que cada tecnologia lide com seu próprio comportamento, separadas em objetos específicos (`EmailNotificationSender`, `PushNotificationSender`, `SmsNotificationSender`, `WhatsAppNotificationSender`).
-- Para abster a camada da aplicação (serviço) de saber "como" instanciar ou qual classe exata usar, é utilizado um mecanismo na forma de `NotificationSenderFactory`. 
-- Ao longo da validação da notificação que deve ser gerada e consumida, a Fábrica é injetada para que consiga construir/prover instancialmente o implementador correto de acordo com a regra de negócio/tipo selecionado, centralizando a lógica de determinação dessa dependência. Em complemento também temos a implementação via injeção de coleções do Spring para o mecanismo de *Factory*.
+O padrão central desta implementação é o **Abstract Factory**, aplicado para encapsular a criação de famílias de objetos relacionados ao envio de notificações — isolando completamente a camada de aplicação dos detalhes de cada provedor.
+
+### O Problema
+
+O envio de uma notificação envolve três responsabilidades distintas: **validar** os dados, **formatar** a mensagem e **enviar** pelo canal correto. Cada provedor (Gmail, Twilio, Firebase, etc.) possui suas próprias regras e SDKs para cada uma dessas etapas. Sem um padrão adequado, a lógica de seleção e instanciação desses objetos espalharia conhecimento de infraestrutura pela camada de aplicação.
+
+### A Solução
+
+**1. Interfaces da fábrica abstrata (Domain)**
+
+```java
+// Interface do produto abstrato — família de objetos para um provedor
+public interface NotificationAbstractFactory {
+    NotificationSender    createSender();
+    NotificationFormatter createFormatter();
+    NotificationValidator createValidator();
+}
+
+// Interface do produtor — retorna a fábrica correta pelo provedor
+public interface NotificationFactory {
+    NotificationAbstractFactory getFactory(NotificationProvider provider);
+}
+```
+
+**2. Fábricas concretas por provedor (Infrastructure)**
+
+Cada provedor possui sua própria fábrica concreta que sabe quais implementações instanciar:
+
+| Fábrica Concreta | Canal | Sender | Formatter | Validator |
+|---|---|---|---|---|
+| `GmailNotificationFactory` | EMAIL | `GmailNotificationSender` | `EmailNotificationFormatter` | `EmailNotificationValidator` |
+| `SendGridNotificationFactory` | EMAIL | `SendGridNotificationSender` | `EmailNotificationFormatter` | `EmailNotificationValidator` |
+| `SesNotificationFactory` | EMAIL | `SesNotificationSender` | `EmailNotificationFormatter` | `EmailNotificationValidator` |
+| `TwilioNotificationFactory` | SMS | `TwilioNotificationSender` | `SmsNotificationFormatter` | `SmsNotificationValidator` |
+| `ZenviaNotificationFactory` | SMS | `ZenviaNotificationSender` | `SmsNotificationFormatter` | `SmsNotificationValidator` |
+| `FirebaseNotificationFactory` | PUSH | `FirebaseNotificationSender` | `PushNotificationFormatter` | `PushNotificationValidator` |
+| `OnesignalNotificationFactory` | PUSH | `OnesignalNotificationSender` | `PushNotificationFormatter` | `PushNotificationValidator` |
+| `WhatsAppApiNotificationFactory` | WHATSAPP | `WhatsAppApiNotificationSender` | `WhatsAppNotificationFormatter` | `WhatsAppNotificationValidator` |
+
+**3. Produtor das fábricas (NotificationFactoryProducer)**
+
+`NotificationFactoryProducer` implementa `NotificationFactory` e mantém um `Map<NotificationProvider, NotificationAbstractFactory>` populado via injeção de dependência do Spring. Ao receber um `NotificationProvider`, retorna a fábrica concreta correspondente:
+
+```java
+NotificationAbstractFactory factory = notificationFactory.getFactory(provider);
+factory.createValidator().validate(notification);
+factory.createFormatter().format(notification);
+factory.createSender().send(notification);
+```
+
+**4. Provedores disponíveis por canal**
+
+```
+EMAIL   → GMAIL | SENDGRID | SES
+SMS     → TWILIO | ZENVIA
+PUSH    → FIREBASE | ONESIGNAL
+WHATSAPP → WHATSAPP_API
+```
+
+### Benefícios obtidos
+
+- **Desacoplamento total**: a camada de aplicação só conhece as interfaces do domínio, nunca as classes concretas de infraestrutura.
+- **Extensibilidade**: adicionar um novo provedor exige criar apenas uma nova fábrica concreta, sem modificar código existente (**OCP**).
+- **Consistência**: cada fábrica garante que sender, formatter e validator sempre pertencem à mesma família coerente de implementações.
+- **Testabilidade**: os serviços são testados com mocks das interfaces, sem nenhum acoplamento a SDKs externos.
 
 ## 🛠️ Tecnologias Utilizadas
-- **Java 17+** / **Spring Boot**
-- **Clean Architecture** (estrutura de pacotes modelada no projeto)
-- **PostgreSQL** para o armazenamento persistente.
-- **RabbitMQ** (via Docker) para fila de processamento assíncrono.
-- **JUnit / Mockito** para os testes automatizados da lógica que já estão reportados pelo JaCoCo e Surefire (`target/surefire-reports/*`).
-- O ecossistema é suportado via contêineres e um orquestrador com a configuração já no local (`docker-compose.yml`).
+
+- **Java 21** / **Spring Boot**
+- **Clean Architecture** (estrutura de pacotes)
+- **Abstract Factory** (padrão de projeto central)
+- **PostgreSQL** para armazenamento persistente
+- **RabbitMQ** (via Docker) para processamento assíncrono de notificações
+- **JUnit 5 / Mockito** para testes automatizados
+- **JaCoCo** para cobertura de testes (`target/site/jacoco/`)
+- **Docker Compose** para orquestração local do ambiente (`docker-compose.yml`)

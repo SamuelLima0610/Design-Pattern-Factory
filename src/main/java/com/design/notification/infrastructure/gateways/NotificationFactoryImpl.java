@@ -6,18 +6,17 @@ import org.springframework.stereotype.Component;
 
 import com.design.notification.domain.enums.NotificationChannel;
 import com.design.notification.domain.gateways.NotificationSender;
-import com.design.notification.domain.gateways.NotificationSenderFactory;
 import com.design.notification.infrastructure.gateways.senders.EmailNotificationSender;
 import com.design.notification.infrastructure.gateways.senders.PushNotificationSender;
 import com.design.notification.infrastructure.gateways.senders.SmsNotificationSender;
 import com.design.notification.infrastructure.gateways.senders.WhatsAppNotificationSender;
 
 @Component
-public class NotificationSenderFactoryImpl implements NotificationSenderFactory {
+public class NotificationFactoryImpl {
 
     private final Map<NotificationChannel, NotificationSender> senders;
 
-    public NotificationSenderFactoryImpl(
+    public NotificationFactoryImpl(
             EmailNotificationSender emailSender,
             SmsNotificationSender smsSender,
             PushNotificationSender pushSender,
@@ -30,7 +29,6 @@ public class NotificationSenderFactoryImpl implements NotificationSenderFactory 
         );
     }
 
-    @Override
     public NotificationSender getSender(NotificationChannel channel) {
         NotificationSender sender = senders.get(channel);
         if (sender == null) {
