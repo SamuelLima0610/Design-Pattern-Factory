@@ -100,7 +100,7 @@ class DomainEntitiesTest {
     // ── Notification ─────────────────────────────────────────────────────────
 
     private Notification buildNotification(Long id) {
-        return new Notification(id, "Hello!", NotificationChannel.EMAIL,
+        return new Notification(id, "Title", "Subject", "Hello!", NotificationChannel.EMAIL,
                 NotificationStatus.PENDING, NotificationProvider.GMAIL, buildUser(1L),
                 LocalDateTime.of(2024, 1, 1, 10, 0),
                 LocalDateTime.of(2024, 1, 2, 10, 0));
@@ -117,8 +117,10 @@ class DomainEntitiesTest {
     void notification_allArgsConstructor_shouldSetAllFields() {
         var now = LocalDateTime.now();
         var user = buildUser(1L);
-        var n = new Notification(1L, "Hi", NotificationChannel.SMS, NotificationStatus.SENT, NotificationProvider.GMAIL, user, now, now);
+        var n = new Notification(1L, "Title", "Subject", "Hi", NotificationChannel.SMS, NotificationStatus.SENT, NotificationProvider.GMAIL, user, now, now);
         assertEquals(1L, n.getId());
+        assertEquals("Title", n.getTitle());
+        assertEquals("Subject", n.getSubject());
         assertEquals("Hi", n.getMessage());
         assertEquals(NotificationChannel.SMS, n.getChannel());
         assertEquals(NotificationStatus.SENT, n.getStatus());
@@ -134,6 +136,8 @@ class DomainEntitiesTest {
         var now = LocalDateTime.now();
         var user = buildUser(1L);
         n.setId(3L);
+        n.setTitle("New Title");
+        n.setSubject("New Subject");
         n.setMessage("Test");
         n.setChannel(NotificationChannel.PUSH);
         n.setStatus(NotificationStatus.FAILED);
@@ -142,6 +146,8 @@ class DomainEntitiesTest {
         n.setUpdatedAt(now);
 
         assertEquals(3L, n.getId());
+        assertEquals("New Title", n.getTitle());
+        assertEquals("New Subject", n.getSubject());
         assertEquals("Test", n.getMessage());
         assertEquals(NotificationChannel.PUSH, n.getChannel());
         assertEquals(NotificationStatus.FAILED, n.getStatus());
@@ -185,6 +191,8 @@ class DomainEntitiesTest {
     void notification_toString_shouldContainRelevantFields() {
         var n = buildNotification(1L);
         var str = n.toString();
+        assertTrue(str.contains("Title"));
+        assertTrue(str.contains("Subject"));
         assertTrue(str.contains("Hello!"));
         assertTrue(str.contains("EMAIL"));
     }

@@ -14,7 +14,8 @@ public class CreateNotificationUseCase {
         this.notificationRepository = notificationRepository;
     }
 
-    public Notification execute(Notification notification){
+    public Notification execute(Notification notification) {
         return notificationRepository.save(notification);
     }
 }
+

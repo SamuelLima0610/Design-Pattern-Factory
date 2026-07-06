@@ -38,7 +38,7 @@ class NotificationUseCasesTest {
     }
 
     private Notification buildNotification(Long id) {
-        return new Notification(id, "Hello!", NotificationChannel.EMAIL,
+        return new Notification(id, "Title", "Subject", "Hello!", NotificationChannel.EMAIL,
                 NotificationStatus.PENDING, NotificationProvider.GMAIL, buildUser(), LocalDateTime.now(), LocalDateTime.now());
     }
 
@@ -155,7 +155,7 @@ class NotificationUseCasesTest {
     void updateNotification_whenFound_shouldSetIdAndSave() {
         var useCase = new UpdateNotificationUseCase(notificationRepository);
         var existing = buildNotification(1L);
-        var updated = new Notification(null, "Updated!", NotificationChannel.SMS,
+        var updated = new Notification(null, "Updated!", "Updated Subject", "Updated Message", NotificationChannel.SMS,
                 NotificationStatus.PENDING, NotificationProvider.GMAIL, buildUser(), null, null);
         when(notificationRepository.findById(1L)).thenReturn(Optional.of(existing));
 
@@ -168,7 +168,7 @@ class NotificationUseCasesTest {
     @Test
     void updateNotification_whenNotFound_shouldNotSave() {
         var useCase = new UpdateNotificationUseCase(notificationRepository);
-        var updated = new Notification(null, "Updated!", NotificationChannel.SMS,
+        var updated = new Notification(null, "Updated!", "Updated Subject", "Updated Message", NotificationChannel.SMS,
                 NotificationStatus.PENDING, NotificationProvider.GMAIL, buildUser(), null, null);
         when(notificationRepository.findById(99L)).thenReturn(Optional.empty());
 

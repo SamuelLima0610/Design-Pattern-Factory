@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,14 +36,15 @@ class NotificationRepositoryImplTest {
     }
 
     private Notification buildNotification(Long id) {
-        return new Notification(id, "Hello!", NotificationChannel.EMAIL,
+        return new Notification(id, "Hello!", "Subject", "Message", NotificationChannel.EMAIL,
                 NotificationStatus.PENDING, NotificationProvider.GMAIL, buildUser(), LocalDateTime.now(), LocalDateTime.now());
     }
 
     private NotificationEntity buildEntity(Long id) {
         var userEntity = new UserEntity(1L, "John", "+5511999", "j@j.com", null, LocalDateTime.now(), LocalDateTime.now());
-        return new NotificationEntity(id, "Hello!", NotificationChannel.EMAIL,
-                NotificationStatus.PENDING, NotificationProvider.GMAIL,  userEntity, LocalDateTime.now(), LocalDateTime.now());
+        return new NotificationEntity(id, "Hello!", "Subject", "Message", NotificationChannel.EMAIL,
+                NotificationStatus.PENDING, NotificationProvider.GMAIL,  userEntity, new ArrayList<>(),
+                new ArrayList<>(),LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Test

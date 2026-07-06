@@ -38,13 +38,13 @@ class NotificationControllerTest {
     @MockitoBean private NotificationService notificationService;
 
     private NotificationResponse buildResponse(Long id) {
-        return new NotificationResponse(id, "Hello!", NotificationChannel.EMAIL,
+        return new NotificationResponse(id, "Hello!", "Subject", "Message", NotificationChannel.EMAIL,
                 NotificationStatus.SENT, NotificationProvider.GMAIL, 1L, LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Test
     void createNotification_shouldReturn200WithResponse() throws Exception {
-        var request = new NotificationRequest("Hello!", NotificationChannel.EMAIL, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L);
+        var request = new NotificationRequest("Hello!", "Subject", "Message", NotificationChannel.EMAIL, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L, null, null);
         var response = buildResponse(1L);
         when(notificationService.createNotification(any())).thenReturn(response);
 
@@ -53,7 +53,9 @@ class NotificationControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.message").value("Hello!"))
+                .andExpect(jsonPath("$.title").value("Hello!"))
+                .andExpect(jsonPath("$.subject").value("Subject"))
+                .andExpect(jsonPath("$.message").value("Message"))
                 .andExpect(jsonPath("$.channel").value("EMAIL"))
                 .andExpect(jsonPath("$.status").value("SENT"));
     }
@@ -106,7 +108,7 @@ class NotificationControllerTest {
 
     @Test
     void updateNotification_shouldReturn204() throws Exception {
-        var request = new NotificationRequest("Updated!", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L);
+        var request = new NotificationRequest("Updated!", "Updated Subject", "Updated Message", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L, null, null);
         doNothing().when(notificationService).updateNotification(eq(1L), any());
 
         mockMvc.perform(put("/notifications/1")
@@ -117,7 +119,7 @@ class NotificationControllerTest {
 
     @Test
     void createNotification_whenUserNotFound_shouldReturn500() throws Exception {
-        var request = new NotificationRequest("Hello!", NotificationChannel.EMAIL, NotificationStatus.PENDING, NotificationProvider.GMAIL, 99L);
+        var request = new NotificationRequest("Hello!", "Subject", "Message", NotificationChannel.EMAIL, NotificationStatus.PENDING, NotificationProvider.GMAIL, 99L, null, null);
         when(notificationService.createNotification(any()))
                 .thenThrow(new IllegalArgumentException("User not found: 99"));
 

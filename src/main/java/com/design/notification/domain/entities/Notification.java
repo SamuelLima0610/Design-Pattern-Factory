@@ -1,6 +1,8 @@
 package com.design.notification.domain.entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import com.design.notification.domain.enums.NotificationChannel;
@@ -11,20 +13,26 @@ import com.design.notification.domain.enums.NotificationStatus;
 public class Notification {
     
     private Long id;
+    private String title;
+    private String subject;
     private String message;
     private NotificationChannel channel;
     private NotificationStatus status;
     private NotificationProvider provider;
     private User user;
+    private List<Recipient> recipients = new ArrayList<>();
+    private List<Attachment> attachments = new ArrayList<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public Notification() {
     }
 
-    public Notification(Long id, String message, NotificationChannel channel, NotificationStatus status, NotificationProvider provider, User user,
+    public Notification(Long id, String title, String subject, String message, NotificationChannel channel, NotificationStatus status, NotificationProvider provider, User user,
             LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
+        this.title = title;
+        this.subject = subject;
         this.message = message;
         this.channel = channel;
         this.status = status;
@@ -41,6 +49,23 @@ public class Notification {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
 
     public String getMessage() {
         return message;
@@ -82,6 +107,22 @@ public class Notification {
         this.user = user;
     }
 
+    public List<Recipient> getRecipients() {
+        return recipients;
+    }
+
+    public void setRecipients(List<Recipient> recipients) {
+        this.recipients = recipients;
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -115,6 +156,8 @@ public class Notification {
     public String toString() {
         return "Notification{" +
                 "id=" + id +
+                ", title='" + title + '\'' +
+                ", subject='" + subject + '\'' +
                 ", message='" + message + '\'' +
                 ", channel=" + channel +
                 ", status=" + status +

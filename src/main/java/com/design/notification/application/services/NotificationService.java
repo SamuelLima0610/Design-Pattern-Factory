@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 import com.design.notification.application.dtos.notification.NotificationRequest;
 import com.design.notification.application.dtos.notification.NotificationResponse;
 import com.design.notification.application.mappers.NotificationDtoMapper;
+import com.design.notification.domain.builder.AttachmentBuilder;
+import com.design.notification.domain.builder.NotificationBuilder;
+import com.design.notification.domain.builder.RecipientBuilder;
+import com.design.notification.domain.gateways.NotificationFactory;
 import com.design.notification.domain.gateways.NotificationPublisher;
 import com.design.notification.domain.usecases.notification.CreateNotificationUseCase;
 import com.design.notification.domain.usecases.notification.DeleteNotificationUseCase;
@@ -26,6 +30,7 @@ public class NotificationService {
     private final NotificationPublisher notificationPublisher;
     private final GetUserUseCase getUserCase;
     private final NotificationDtoMapper notificationMapper;
+    private final NotificationFactory notificationFactory;
 
     public NotificationService(
             CreateNotificationUseCase createNotificationCase, 
@@ -34,7 +39,8 @@ public class NotificationService {
             ListAllNotificationsUseCase listNotificationsCase, 
             NotificationPublisher notificationPublisher,
             GetUserUseCase getUserCase,
-            NotificationDtoMapper notificationMapper) {
+            NotificationDtoMapper notificationMapper,
+            NotificationFactory notificationFactory) {
         this.createNotificationCase = createNotificationCase;
         this.deleteNotificationCase = deleteNotificationCase;
         this.getNotificationCase = getNotificationCase;
@@ -42,10 +48,23 @@ public class NotificationService {
         this.notificationPublisher = notificationPublisher;
         this.getUserCase = getUserCase;
         this.notificationMapper = notificationMapper;
+        this.notificationFactory = notificationFactory;
     }
 
     public NotificationResponse createNotification(NotificationRequest request) {
-        var notification = notificationMapper.toEntity(request);
+        var factory = notificationFactory.getFactory(request.getProvider());
+        NotificationBuilder builder = factory.createBuilder();
+
+        builder.setNotification(request);
+
+        if (builder instanceof RecipientBuilder recipientBuilder && request.getRecipients() != null) {
+            recipientBuilder.setRecipients(request.getRecipients());
+        }
+        if (builder instanceof AttachmentBuilder attachmentBuilder && request.getAttachments() != null) {
+            attachmentBuilder.setAttachments(request.getAttachments());
+        }
+
+        var notification = builder.build();
         var user = getUserCase.execute(request.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + request.getUserId()));
         notification.setUser(user);

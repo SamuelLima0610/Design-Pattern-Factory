@@ -26,8 +26,14 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     @Transactional
     public Notification save(Notification notification) {
         NotificationEntity entity = mapper.toEntity(notification);
-        entity = jpaRepository.save(entity);
-        return mapper.toDomain(entity);
+        if (entity.getAttachments() != null) {
+            entity.getAttachments().forEach(attachment -> attachment.setNotification(entity));
+        }
+        if (entity.getRecipients() != null) {
+            entity.getRecipients().forEach(recipient -> recipient.setNotification(entity));
+        }
+        NotificationEntity saved = jpaRepository.save(entity);
+        return mapper.toDomain(saved);
     }
 
     @Override

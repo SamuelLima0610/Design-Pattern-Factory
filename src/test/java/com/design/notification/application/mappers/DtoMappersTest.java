@@ -70,7 +70,7 @@ class DtoMappersTest {
     @Test
     void notificationMapper_toResponse_shouldMapAllFields() {
         var user = buildUser(1L);
-        var notification = new Notification(1L, "Hello!", NotificationChannel.EMAIL,
+        var notification = new Notification(1L, "Title", "Subject", "Hello!", NotificationChannel.EMAIL,
                 NotificationStatus.SENT, NotificationProvider.GMAIL, user,
                 LocalDateTime.of(2024, 1, 1, 10, 0),
                 LocalDateTime.of(2024, 1, 2, 10, 0));
@@ -78,6 +78,8 @@ class DtoMappersTest {
         NotificationResponse response = notificationMapper.toResponse(notification);
 
         assertEquals(1L, response.getId());
+        assertEquals("Title", response.getTitle());
+        assertEquals("Subject", response.getSubject());
         assertEquals("Hello!", response.getMessage());
         assertEquals(NotificationChannel.EMAIL, response.getChannel());
         assertEquals(NotificationStatus.SENT, response.getStatus());
@@ -93,7 +95,7 @@ class DtoMappersTest {
     @Test
     void notificationMapper_toEntity_shouldMapMessageChannelStatus() {
         var request = new NotificationRequest(
-                "Hello!", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L);
+                "Title", "Subject", "Hello!", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L, null, null);
 
         Notification notification = notificationMapper.toEntity(request);
 

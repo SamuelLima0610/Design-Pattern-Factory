@@ -20,7 +20,7 @@ class NotificationSendersTest {
     }
 
     private Notification buildNotification(NotificationChannel channel) {
-        return new Notification(1L, "Test message", channel,
+        return new Notification(1L, "Title", "Subject", "Message", channel,
                 NotificationStatus.PENDING, NotificationProvider.GMAIL, buildUser(), LocalDateTime.now(), LocalDateTime.now());
     }
 

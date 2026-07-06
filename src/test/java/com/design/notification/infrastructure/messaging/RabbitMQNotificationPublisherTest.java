@@ -28,7 +28,7 @@ class RabbitMQNotificationPublisherTest {
     private Notification buildNotification(Long id) {
         var user = new User(1L, "John", "+5511999999999", "john@example.com",
                 LocalDateTime.now(), LocalDateTime.now());
-        return new Notification(id, "Hello!", NotificationChannel.EMAIL,
+        return new Notification(id, "Hello!", "Subject", "Message", NotificationChannel.EMAIL,
                 NotificationStatus.PENDING, NotificationProvider.GMAIL, user, LocalDateTime.now(), LocalDateTime.now());
     }
 

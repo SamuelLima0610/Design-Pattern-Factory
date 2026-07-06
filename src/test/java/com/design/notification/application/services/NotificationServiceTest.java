@@ -16,11 +16,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.design.notification.application.dtos.notification.NotificationRequest;
 import com.design.notification.application.dtos.notification.NotificationResponse;
 import com.design.notification.application.mappers.NotificationDtoMapper;
+import com.design.notification.domain.builder.NotificationBuilder;
 import com.design.notification.domain.entities.Notification;
 import com.design.notification.domain.entities.User;
 import com.design.notification.domain.enums.NotificationChannel;
 import com.design.notification.domain.enums.NotificationProvider;
 import com.design.notification.domain.enums.NotificationStatus;
+import com.design.notification.domain.gateways.NotificationAbstractFactory;
+import com.design.notification.domain.gateways.NotificationFactory;
 import com.design.notification.domain.gateways.NotificationPublisher;
 import com.design.notification.domain.usecases.notification.CreateNotificationUseCase;
 import com.design.notification.domain.usecases.notification.DeleteNotificationUseCase;
@@ -38,6 +41,9 @@ class NotificationServiceTest {
     @Mock private NotificationPublisher notificationPublisher;
     @Mock private GetUserUseCase getUserCase;
     @Mock private NotificationDtoMapper notificationMapper;
+    @Mock private NotificationFactory notificationFactory;
+    @Mock private NotificationAbstractFactory abstractFactory;
+    @Mock private NotificationBuilder notificationBuilder;
 
     @InjectMocks private NotificationService notificationService;
 
@@ -47,24 +53,26 @@ class NotificationServiceTest {
     }
 
     private Notification buildNotification(Long id, User user) {
-        return new Notification(id, "Hello!", NotificationChannel.EMAIL,
+        return new Notification(id, "Title", "Subject", "Hello!", NotificationChannel.EMAIL,
                 NotificationStatus.PENDING, NotificationProvider.GMAIL, user, LocalDateTime.now(), LocalDateTime.now());
     }
 
     private NotificationResponse buildResponse(Long id) {
-        return new NotificationResponse(id, "Hello!", NotificationChannel.EMAIL,
+        return new NotificationResponse(id, "Title", "Subject", "Hello!", NotificationChannel.EMAIL,
                 NotificationStatus.SENT, NotificationProvider.GMAIL, 1L, LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Test
     void createNotification_shouldSetUserCreateSendAndReturnResponse() {
         var user = buildUser(1L);
-        var request = new NotificationRequest("Hello!", NotificationChannel.EMAIL, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L);
+        var request = new NotificationRequest("Hello!", "Subject", "Message", NotificationChannel.EMAIL, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L, null, null);
         var entity = buildNotification(null, null);
         var saved = buildNotification(1L, user);
         var response = buildResponse(1L);
 
-        when(notificationMapper.toEntity(request)).thenReturn(entity);
+        when(notificationFactory.getFactory(NotificationProvider.GMAIL)).thenReturn(abstractFactory);
+        when(abstractFactory.createBuilder()).thenReturn(notificationBuilder);
+        when(notificationBuilder.build()).thenReturn(entity);
         when(getUserCase.execute(1L)).thenReturn(Optional.of(user));
         when(createNotificationCase.execute(entity)).thenReturn(saved);
         when(notificationMapper.toResponse(saved)).thenReturn(response);
@@ -73,15 +81,18 @@ class NotificationServiceTest {
 
         assertEquals(response, result);
         assertEquals(user, entity.getUser());
+        verify(notificationBuilder).setNotification(request);
         verify(notificationPublisher).publish(saved);
     }
 
     @Test
     void createNotification_whenUserNotFound_shouldThrowIllegalArgumentException() {
-        var request = new NotificationRequest("Hello!", NotificationChannel.EMAIL, NotificationStatus.PENDING, NotificationProvider.GMAIL, 99L);
+        var request = new NotificationRequest("Hello!", "Subject", "Message", NotificationChannel.EMAIL, NotificationStatus.PENDING, NotificationProvider.GMAIL, 99L, null, null);
         var entity = buildNotification(null, null);
 
-        when(notificationMapper.toEntity(request)).thenReturn(entity);
+        when(notificationFactory.getFactory(NotificationProvider.GMAIL)).thenReturn(abstractFactory);
+        when(abstractFactory.createBuilder()).thenReturn(notificationBuilder);
+        when(notificationBuilder.build()).thenReturn(entity);
         when(getUserCase.execute(99L)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> notificationService.createNotification(request));
@@ -123,7 +134,7 @@ class NotificationServiceTest {
     @Test
     void updateNotification_whenUserAndNotificationExist_shouldUpdate() {
         var user = buildUser(1L);
-        var request = new NotificationRequest("Updated!", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L);
+        var request = new NotificationRequest("Updated!", "Updated Subject", "Updated Message", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L, null, null);
         var updatedEntity = buildNotification(null, null);
         var existing = buildNotification(1L, user);
 
@@ -139,7 +150,7 @@ class NotificationServiceTest {
 
     @Test
     void updateNotification_whenUserNotFound_shouldThrowException() {
-        var request = new NotificationRequest("Updated!", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 99L);
+        var request = new NotificationRequest("Updated!", "Updated Subject", "Updated Message", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 99L, null, null);
         when(notificationMapper.toEntity(request)).thenReturn(buildNotification(null, null));
         when(getUserCase.execute(99L)).thenReturn(Optional.empty());
 
@@ -150,7 +161,7 @@ class NotificationServiceTest {
     @Test
     void updateNotification_whenNotificationNotFound_shouldDoNothing() {
         var user = buildUser(1L);
-        var request = new NotificationRequest("Updated!", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L);
+        var request = new NotificationRequest("Updated!", "Updated Subject", "Updated Message", NotificationChannel.SMS, NotificationStatus.PENDING, NotificationProvider.GMAIL, 1L, null, null);
         when(notificationMapper.toEntity(request)).thenReturn(buildNotification(null, null));
         when(getUserCase.execute(1L)).thenReturn(Optional.of(user));
         when(getNotificationCase.execute(1L)).thenReturn(Optional.empty());
