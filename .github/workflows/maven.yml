@@ -5,6 +5,8 @@
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
+#      - name: Run integration tests
+# run: mvn -B failsafe:integration-test failsafe:verify --file pom.xml
 
 name: Java CI with Maven
 
@@ -40,6 +42,6 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
+      - name: Run unit tests
+        run: mvn -B test --file pom.xml
     
